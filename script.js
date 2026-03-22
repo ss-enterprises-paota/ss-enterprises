@@ -1,8 +1,8 @@
- window.addEventListener("load", function() {
+  window.addEventListener("load", function() {
     const loader = document.getElementById("loader");
     const content = document.getElementById("content");
 
-    // Start transition after 2 seconds
+    // Start removal of loader
     setTimeout(() => {
         loader.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
         loader.style.opacity = "0";
@@ -10,41 +10,41 @@
         
         setTimeout(() => {
             loader.style.display = "none";
-            
-            // 1. REVEAL CONTENT FIRST
             content.style.display = "block";
             document.body.style.overflow = "auto";
             
-            // 2. NOW INITIALIZE AOS
-            // This ensures AOS can see the height/position of the sections
-            AOS.init({
-                duration: 1000,
-                once: true,
-                offset: 100,
-                easing: 'ease-in-out'
+            // 1. Initialize Scroll Animations
+            AOS.init({ duration: 1000, once: true, offset: 100 });
+
+            // 2. Initialize Slider (Slides automatically, pauses on mouse over)
+            const swiper = new Swiper(".productSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                autoplay: {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+                pagination: { el: ".swiper-pagination", clickable: true },
+                breakpoints: {
+                    768: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                },
             });
 
             // 3. Generate QR Code
-            generateQR();
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                new QRCode(qrContainer, {
+                    text: window.location.href,
+                    width: 150, height: 150,
+                    colorDark : "#15803d", colorLight : "#ffffff"
+                });
+            }
 
-            // 4. Force a refresh to catch any lazy-loaded elements
+            // Refresh AOS to catch new layout
             AOS.refresh();
-
         }, 800);
     }, 2000); 
 });
-
-function generateQR() {
-    const qrContainer = document.getElementById("qrcode");
-    if (qrContainer) {
-        const currentURL = window.location.href; 
-        new QRCode(qrContainer, {
-            text: currentURL,
-            width: 180,
-            height: 180,
-            colorDark : "#166534",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    }
-}
